@@ -1,0 +1,7 @@
+bin/
+obj/
+.vs/
+/LORD.MONITOR.WebApi/Properties/PublishProfiles/FolderProfile.pubxml
+/LORD.MONITOR.WebApi/Properties/PublishProfiles/FolderProfile.pubxml.user
+/LORD.MONITOR.Web/logs
+/LORD.MONITOR.WebApi/logs/log-202012011746.txt
