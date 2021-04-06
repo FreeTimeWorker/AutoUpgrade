@@ -16,8 +16,9 @@ namespace Winform_App
         [STAThread]
         static void Main(string[] args)
         {
-            //自动更新接入
-            args = new string[] { "false" };//发布时去掉这一行，修改下边的地址
+            #if DEBUG
+            args = new string[] { "false" };//发布时生成release版本的放到服务器，必须要这样
+            #endif
             if (args.Length != 0 && args[0] == "false")
             {
                 Application.SetHighDpiMode(HighDpiMode.SystemAware);

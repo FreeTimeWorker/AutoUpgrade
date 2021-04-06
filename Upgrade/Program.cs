@@ -20,7 +20,6 @@ namespace Upgrade
         [STAThread]
         static void Main(string[] args)
         {
-            //args = new string[] { "Winform_App.exe", "1.0.0", "SampleProject", "5C210AF8-6D4E-4D06-A9B7-F1E04BFE8AC3", "http://localhost:56799/" };
             if (args.Length != 5)
             {
                 MessageBox.Show("参数错误，参数 1，应用程序的入口程序exe名称，2,currentversion，3,项目名称，4，项目密码");
@@ -38,8 +37,18 @@ namespace Upgrade
                     PropertyNamingPolicy = null//属性名称序列化为其他形式，null为不转换原样输出
                 }))
                 .ContinueWith(result=> {
-                    var tokenstr = result.Result.Content.ReadAsStringAsync().Result;
-                    client.DefaultRequestHeaders.Add("Token", string.Concat("autoupgrade ", tokenstr));
+                    if (result.Status == TaskStatus.Faulted)
+                    {
+                        //更新服务器异常
+                        MessageBox.Show("更新服务器异常,点击确定继续");
+                        StartProcess();
+                    }
+                    else
+                    {
+                        var tokenstr = result.Result.Content.ReadAsStringAsync().Result;
+                        client.DefaultRequestHeaders.Add("Token", string.Concat("autoupgrade ", tokenstr));
+                    }
+                   
                 }).Wait();
                 var contiuerun = false;
                 client.GetAsync(string.Concat("/Upgrade/HasUpgrade?currentVersion=", currentVersion))
@@ -60,14 +69,18 @@ namespace Upgrade
                 }
                 else
                 {
-                    ProcessStartInfo info = new ProcessStartInfo();
-                    info.FileName = StartExeName;//要启动的程序外部名称   
-                    info.Arguments = "false";
-                    info.WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                    Process.Start(info);
-                    Application.Exit();
+                    StartProcess();
                 }
             }
+        }
+        static void StartProcess()
+        {
+            ProcessStartInfo info = new ProcessStartInfo();
+            info.FileName = StartExeName;//要启动的程序外部名称   
+            info.Arguments = "false";
+            info.WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            Process.Start(info);
+            Application.Exit();
         }
     }
 }
