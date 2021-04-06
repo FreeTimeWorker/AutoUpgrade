@@ -22,6 +22,9 @@ token信息保存在web项目的appsettings.json中，在安全方面，token保
 
 ```
 
+            #if DEBUG
+            args = new string[] { "false" };//发布时生成release版本的放到服务器，必须要这样
+            #endif
             if (args.Length != 0 && args[0] == "false")
             {
                 Application.SetHighDpiMode(HighDpiMode.SystemAware);
@@ -51,5 +54,7 @@ token信息保存在web项目的appsettings.json中，在安全方面，token保
 自动更新的逻辑：
 首先判断version和服务端是否一致，如果不一致触发自动更新
 其次本地的更新程序会将Upgrade.exe所在目录下所有文件都计算hash值后提交到更新网站，通过对比hash值确定需要下载的文件，会忽略到.ignore中的文件，挨个去下载服务端提供的文件，下载完成后，退出自动更新程序，然后启动主程序。
+
+增加更高一级的权限，解决用户将项目安装到C盘后，无法执行自动更新的问题
 
 
