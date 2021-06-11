@@ -139,7 +139,6 @@ namespace Upgrade
             }
             return stringBuilder.ToString();
         }
-
         private void btnStartExe_Click(object sender, EventArgs e)
         {
             ProcessStartInfo info = new ProcessStartInfo();
