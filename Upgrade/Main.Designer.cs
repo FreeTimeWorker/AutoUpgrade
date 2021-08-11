@@ -37,16 +37,18 @@ namespace Upgrade
             // 
             // progressBar
             // 
-            this.progressBar.Location = new System.Drawing.Point(14, 93);
+            this.progressBar.Location = new System.Drawing.Point(12, 66);
+            this.progressBar.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(606, 68);
+            this.progressBar.Size = new System.Drawing.Size(519, 48);
             this.progressBar.TabIndex = 0;
             // 
             // btnStartExe
             // 
-            this.btnStartExe.Location = new System.Drawing.Point(497, 207);
+            this.btnStartExe.Location = new System.Drawing.Point(426, 146);
+            this.btnStartExe.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnStartExe.Name = "btnStartExe";
-            this.btnStartExe.Size = new System.Drawing.Size(121, 38);
+            this.btnStartExe.Size = new System.Drawing.Size(104, 27);
             this.btnStartExe.TabIndex = 1;
             this.btnStartExe.Text = "启动";
             this.btnStartExe.UseVisualStyleBackColor = true;
@@ -55,17 +57,18 @@ namespace Upgrade
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(14, 73);
+            this.label1.Location = new System.Drawing.Point(14, 52);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(77, 17);
+            this.label1.Size = new System.Drawing.Size(83, 12);
             this.label1.TabIndex = 2;
             this.label1.Text = "下载文件中...";
             // 
             // jump
             // 
-            this.jump.Location = new System.Drawing.Point(14, 207);
+            this.jump.Location = new System.Drawing.Point(12, 146);
+            this.jump.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.jump.Name = "jump";
-            this.jump.Size = new System.Drawing.Size(121, 38);
+            this.jump.Size = new System.Drawing.Size(104, 27);
             this.jump.TabIndex = 1;
             this.jump.Text = "跳过本次更新";
             this.jump.UseVisualStyleBackColor = true;
@@ -73,17 +76,19 @@ namespace Upgrade
             // 
             // Main
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(630, 277);
+            this.ClientSize = new System.Drawing.Size(540, 191);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.jump);
             this.Controls.Add(this.btnStartExe);
             this.Controls.Add(this.progressBar);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "Main";
+            this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "新版本更新";
             this.Load += new System.EventHandler(this.Main_Load);

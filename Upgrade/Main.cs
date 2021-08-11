@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -6,11 +7,11 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Net.Http.Json;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using System.Threading;
 namespace Upgrade
 {
     public partial class Main : Form
@@ -43,46 +44,40 @@ namespace Upgrade
                 }
                 notifyForm("正在比对文件",0, 100);
                 //确认了需要下载的文件
-                Program.client.PostAsync("/CompareFile/Compare", JsonContent.Create<List<FileHashCode>>(fileHashCodes, options: new System.Text.Json.JsonSerializerOptions()
+                var result = Program.client.PostAsync("/CompareFile/Compare", new StringContent(JsonConvert.SerializeObject(fileHashCodes), System.Text.Encoding.UTF8, "application/json")).Result;
+                if (result.StatusCode == System.Net.HttpStatusCode.OK)
                 {
-                    PropertyNamingPolicy = null//属性名称序列化为其他形式，null为不转换原样输出
-                }))
-                .ContinueWith(result => {
-                    notifyForm("比对文件完成", 100, 100);
-                    if (result.Result.Content.ReadAsStringAsync().Result == "")
+                   var res =  result.Content.ReadAsStringAsync().Result;
+                    if (res == "")
                     {
                         this.willDownLoadFiles = new List<string>();
                     }
                     else
                     {
-                        this.willDownLoadFiles = result.Result.Content.ReadFromJsonAsync<List<string>>().Result;
+                        this.willDownLoadFiles = JsonConvert.DeserializeObject<List<string>>(res);
                     }
-                    notifyForm(string.Concat("需要下载的文件数：", this.willDownLoadFiles.Count), 100, 100);
-                }).Wait();
+                }
                 var current = 0;
                 foreach (var item in willDownLoadFiles)
                 {
                     current++;
                     var itempath = item.TrimStart('\\');
-                    Program.client.GetAsync(string.Concat("/Upgrade/GetFile?FileName=" + itempath))
-                    .ContinueWith(result => {
-                        result.Result.Content.ReadAsStreamAsync().ContinueWith(o=> {
-                            if (File.Exists(Path.Combine(dir, itempath)))
-                            {
-                                File.Delete(Path.Combine(dir, itempath));
-                            }
-                            Directory.CreateDirectory(Path.GetDirectoryName(Path.Combine(dir, itempath)));
-                            byte[] body = new byte[o.Result.Length];
-                            o.Result.Read(body, 0, (int)o.Result.Length);
-                            using (FileStream fs = new FileStream(Path.Combine(dir, itempath), FileMode.Create))
-                            {
-                                fs.Write(body);
-                                fs.Flush();
-                                fs.Close();
-                            }
-                        }).Wait();
-                    }).Wait(); 
-                    notifyForm(string.Concat("正在下载文件",item),current, willDownLoadFiles.Count);
+                    var fileres = Program.client.GetAsync(string.Concat("/Upgrade/GetFile?FileName=" + itempath)).Result;
+                    var filesbytes = fileres.Content.ReadAsStreamAsync().Result;
+                    if (File.Exists(Path.Combine(dir, itempath)))
+                    {
+                        File.Delete(Path.Combine(dir, itempath));
+                    }
+                    Directory.CreateDirectory(Path.GetDirectoryName(Path.Combine(dir, itempath)));
+                    byte[] body = new byte[filesbytes.Length];
+                    filesbytes.Read(body, 0, (int)filesbytes.Length);
+                    using (FileStream fs = new FileStream(Path.Combine(dir, itempath), FileMode.Create))
+                    {
+                        fs.Write(body,0,body.Length);
+                        fs.Flush();
+                        fs.Close();
+                    };
+                    notifyForm(string.Concat("正在下载文件:",item),current, willDownLoadFiles.Count);
                 }
                 this.btnStartExe.Invoke(new Action(delegate ()
                 {

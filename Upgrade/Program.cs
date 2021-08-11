@@ -1,9 +1,9 @@
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -33,36 +33,35 @@ namespace Upgrade
                 string projectName = args[2];
                 string projectpassword = args[3];
                 var projectinfo = new ProjectInfo() { Name = projectName, PassWord = projectpassword };
-                client.PostAsync("/Auth/GetToken", JsonContent.Create<ProjectInfo>(projectinfo,options:new System.Text.Json.JsonSerializerOptions() {
-                    PropertyNamingPolicy = null//属性名称序列化为其他形式，null为不转换原样输出
-                }))
-                .ContinueWith(result=> {
-                    if (result.Status == TaskStatus.Faulted)
-                    {
-                        //更新服务器异常
-                        MessageBox.Show("更新服务器异常,点击确定继续");
-                        StartProcess();
-                    }
-                    else
-                    {
-                        var tokenstr = result.Result.Content.ReadAsStringAsync().Result;
-                        client.DefaultRequestHeaders.Add("Token", string.Concat("autoupgrade ", tokenstr));
-                    }
-                   
-                }).Wait();
+                var tokenres = client.PostAsync("/Auth/GetToken", new StringContent(JsonConvert.SerializeObject(projectinfo), System.Text.Encoding.UTF8, "application/json")).Result;
+                if (tokenres.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    MessageBox.Show("更新服务器异常,点击确定继续");
+                    StartProcess();
+                }
+                else
+                {
+                    var tokenstr = tokenres.Content.ReadAsStringAsync().Result;
+                    client.DefaultRequestHeaders.Add("Token", string.Concat("autoupgrade ", tokenstr));
+                };
                 var contiuerun = false;
-                client.GetAsync(string.Concat("/Upgrade/HasUpgrade?currentVersion=", currentVersion))
-                    .ContinueWith(result =>
+                var versionres = client.GetAsync(string.Concat("/Upgrade/HasUpgrade?currentVersion=", currentVersion)).Result;
+
+                if (versionres.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    MessageBox.Show("更新服务器异常,点击确定继续");
+                    StartProcess();
+                }
+                else
+                {
+                    var r = versionres.Content.ReadAsStringAsync().Result;
+                    if (r == "true")
                     {
-                        var r = result.Result.Content.ReadAsStringAsync().Result;
-                        if (r == "true")
-                        {
-                            contiuerun = true;
-                        }
-                    }).Wait();
+                        contiuerun = true;
+                    }
+                }
                 if (contiuerun)
                 {
-                    Application.SetHighDpiMode(HighDpiMode.SystemAware);
                     Application.EnableVisualStyles();
                     Application.SetCompatibleTextRenderingDefault(false);
                     Application.Run(new Main());
