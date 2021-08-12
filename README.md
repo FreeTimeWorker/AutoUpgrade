@@ -1,6 +1,6 @@
 ## AutoUpgrade
 
-基于 .net 5.0 的winform程序自动更新程序，
+基于 .net framwork 4.6 的winform 自动更新程序，
 包括1.服务端，AutoUpgrade
 服务端中的wwwroot未作为静态目录使用，仅用于保存程序最新文件的文件夹，一个项目一个文件夹，文件夹中有两个文件必须，
 > 1 .ignore  ，用于定义在自动更新中不同步服务端的文件，比如sqlite数据库，
