@@ -86,7 +86,7 @@ namespace Upgrade
                             };
                             successed = true;
                         }
-                        catch (Exception ex)
+                        catch
                         {
                             //下载发生错误，重试
                             notifyForm($"下载:{item}发生错误,重试下载", current, willDownLoadFiles.Count);
