@@ -29,6 +29,7 @@ namespace Upgrade
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
             this.progressBar = new System.Windows.Forms.ProgressBar();
             this.btnStartExe = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
@@ -84,6 +85,7 @@ namespace Upgrade
             this.Controls.Add(this.btnStartExe);
             this.Controls.Add(this.progressBar);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
