@@ -63,26 +63,41 @@ namespace Upgrade
                 foreach (var item in willDownLoadFiles)
                 {
                     current++;
-                    var itempath = item.TrimStart('\\');
-                    Program.client.GetAsync(string.Concat("/Upgrade/GetFile?FileName=" + itempath))
-                    .ContinueWith(result => {
-                        result.Result.Content.ReadAsStreamAsync().ContinueWith(o=> {
-                            if (File.Exists(Path.Combine(dir, itempath)))
-                            {
-                                File.Delete(Path.Combine(dir, itempath));
-                            }
-                            Directory.CreateDirectory(Path.GetDirectoryName(Path.Combine(dir, itempath)));
-                            byte[] body = new byte[o.Result.Length];
-                            o.Result.Read(body, 0, (int)o.Result.Length);
-                            using (FileStream fs = new FileStream(Path.Combine(dir, itempath), FileMode.Create))
-                            {
-                                fs.Write(body);
-                                fs.Flush();
-                                fs.Close();
-                            }
-                        }).Wait();
-                    }).Wait(); 
-                    notifyForm(string.Concat("正在下载文件",item),current, willDownLoadFiles.Count);
+                    var retryTime = 3;
+                    var downSuccess = false;
+                    while (retryTime>0&&!downSuccess)
+                    {
+                        try
+                        {
+                            var itempath = item.TrimStart('\\');
+                            Program.client.GetAsync(string.Concat("/Upgrade/GetFile?FileName=" + itempath))
+                            .ContinueWith(result => {
+                                result.Result.Content.ReadAsStreamAsync().ContinueWith(o => {
+                                    if (File.Exists(Path.Combine(dir, itempath)))
+                                    {
+                                        File.Delete(Path.Combine(dir, itempath));
+                                    }
+                                    Directory.CreateDirectory(Path.GetDirectoryName(Path.Combine(dir, itempath)));
+                                    byte[] body = new byte[o.Result.Length];
+                                    o.Result.Read(body, 0, (int)o.Result.Length);
+                                    using (FileStream fs = new FileStream(Path.Combine(dir, itempath), FileMode.Create))
+                                    {
+                                        fs.Write(body);
+                                        fs.Flush();
+                                        fs.Close();
+                                    }
+                                }).Wait();
+                            }).Wait();
+                            downSuccess = true;
+                            notifyForm(string.Concat("正在下载文件", item), current, willDownLoadFiles.Count);
+                        }
+                        catch (Exception ex)
+                        {
+                            notifyForm(string.Concat("下载文件", item,"失败,重试下载"), current, willDownLoadFiles.Count);
+                            retryTime--;
+                        }
+                    }
+                    
                 }
                 this.btnStartExe.Invoke(new Action(delegate ()
                 {
