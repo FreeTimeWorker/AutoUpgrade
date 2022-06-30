@@ -21,6 +21,7 @@ namespace Upgrade
         [STAThread]
         static void Main(string[] args)
         {
+            client.Timeout = new TimeSpan(0, 20, 0);
             if (args.Length != 5)
             {
                 if (File.Exists("upgrade.init"))

@@ -57,10 +57,10 @@ namespace Upgrade
                     {
                         this.willDownLoadFiles = result.Result.Content.ReadFromJsonAsync<List<string>>().Result;
                     }
-                    notifyForm(string.Concat("需要下载的文件数：", this.willDownLoadFiles.Count), 100, 100);
+                    notifyForm(string.Concat("需要下载的文件数：", this.willDownLoadFiles.Count), 0, 100);
                 }).Wait();
                 var current = 0;
-                foreach (var item in willDownLoadFiles)
+                foreach (var item in willDownLoadFiles.OrderBy(item=>item!= "version.txt"))
                 {
                     current++;
                     var retryTime = 3;
@@ -69,6 +69,7 @@ namespace Upgrade
                     {
                         try
                         {
+                            notifyForm($"【{current}/{willDownLoadFiles.Count}】   正在下载文件{item}", current, willDownLoadFiles.Count);
                             var itempath = item.TrimStart('\\');
                             Program.client.GetAsync(string.Concat("/Upgrade/GetFile?FileName=" + itempath))
                             .ContinueWith(result => {
@@ -89,11 +90,11 @@ namespace Upgrade
                                 }).Wait();
                             }).Wait();
                             downSuccess = true;
-                            notifyForm(string.Concat("正在下载文件", item), current, willDownLoadFiles.Count);
+                           
                         }
                         catch (Exception ex)
                         {
-                            notifyForm(string.Concat("下载文件", item,"失败,重试下载"), current, willDownLoadFiles.Count);
+                            notifyForm($"【{current}/{willDownLoadFiles.Count}】    下载文件{item}失败,重试下载", current, willDownLoadFiles.Count);
                             retryTime--;
                         }
                     }
