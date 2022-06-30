@@ -21,6 +21,7 @@ namespace Upgrade
             this.btnStartExe.Enabled = false;
         }
         private List<string> willDownLoadFiles;
+        private List<string> willDelFiles;
         private void Main_Load(object sender, EventArgs e)
         {
             //去找看看有那些需要下载的文件
@@ -51,15 +52,28 @@ namespace Upgrade
                     notifyForm("比对文件完成", 100, 100);
                     if (result.Result.Content.ReadAsStringAsync().Result == "")
                     {
-                        this.willDownLoadFiles = new List<string>();
+                        willDownLoadFiles = new List<string>();
+                        willDelFiles = new List<string>();
                     }
                     else
                     {
-                        this.willDownLoadFiles = result.Result.Content.ReadFromJsonAsync<List<string>>().Result;
+                        var res = result.Result.Content.ReadFromJsonAsync<FileDiff>().Result;
+                        willDownLoadFiles = res.Changes;
+                        willDelFiles = res.Deletedes;
                     }
-                    notifyForm(string.Concat("需要下载的文件数：", this.willDownLoadFiles.Count), 0, 100);
+                    notifyForm($"需要下载的文件数:{willDownLoadFiles.Count} 需要删除的文件为", 0, 100);
                 }).Wait();
                 var current = 0;
+                if (willDelFiles != null && willDelFiles.Count > 0)
+                {
+                    notifyForm($"清理文件:{willDelFiles.Count} 需要删除的文件为", 0, willDelFiles.Count);
+                    foreach (var item in willDelFiles)
+                    {
+                        File.Delete(item);
+                        notifyForm($"清理文件:{willDelFiles.Count} 需要删除的文件为", current++, willDelFiles.Count);
+                    }
+                }
+                current = 0;
                 foreach (var item in willDownLoadFiles.OrderBy(item=>item!= "version.txt"))
                 {
                     current++;
@@ -92,7 +106,7 @@ namespace Upgrade
                             downSuccess = true;
                            
                         }
-                        catch (Exception ex)
+                        catch
                         {
                             notifyForm($"【{current}/{willDownLoadFiles.Count}】    下载文件{item}失败,重试下载", current, willDownLoadFiles.Count);
                             retryTime--;

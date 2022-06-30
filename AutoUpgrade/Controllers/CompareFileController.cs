@@ -17,15 +17,18 @@ namespace AutoUpgrade.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost]
-        public List<string> Compare(List<FileHashCode> fileHasCodes)
+        public FileDiff Compare(List<FileHashCode> fileHasCodes)
         {
-            var result = new List<string>();
+            var result = new FileDiff();
             List<string> filenames = fileHasCodes.Select(o => o.FileName).ToList();
             var projectName = HttpContext.Items["ProjectName"].ToString();
-            result.AddRange(GetNewFiles(projectName, filenames));//新增的文件
-            result.AddRange(CompareFiles(projectName, fileHasCodes));//有改动的文件
+            result.Changes.AddRange(GetNewFiles(projectName, filenames));//新增的文件
+            var diff = CompareFiles(projectName, fileHasCodes);
+            result.Deletedes = diff.Deletedes;
+            result.Changes.AddRange(diff.Changes);//有改动的文件
             var ignoreFiles = GetignoreFile(projectName);
-            return result.Except(ignoreFiles).ToList();
+            result.Changes= result.Changes.Except(ignoreFiles).ToList();
+            return result;
         }
         /// <summary>
         /// 获取忽略的文件
@@ -58,9 +61,9 @@ namespace AutoUpgrade.Controllers
         /// </summary>
         /// <param name="fileHasCodes"></param>
         /// <returns></returns>
-        public List<string> CompareFiles(string projectName,List<FileHashCode> fileHasCodes)
+        public FileDiff CompareFiles(string projectName,List<FileHashCode> fileHasCodes)
         {
-            var result = new List<string>();
+            var result = new FileDiff();
             string baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot", projectName);
             foreach (var item in fileHasCodes)
             {
@@ -71,8 +74,12 @@ namespace AutoUpgrade.Controllers
                     var hashcode = ComputerHash(bytes);
                     if (item.HashCode != hashcode)
                     {
-                        result.Add(item.FileName);
+                        result.Changes.Add(item.FileName);
                     }
+                }
+                else
+                {
+                    result.Deletedes.Add(item.FileName);
                 }
             }
             return result;
