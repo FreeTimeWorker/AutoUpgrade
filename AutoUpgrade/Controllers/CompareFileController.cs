@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace AutoUpgrade.Controllers
 {
@@ -31,10 +30,10 @@ namespace AutoUpgrade.Controllers
             var result = new FileDiff();
             List<string> filenames = fileHasCodes.Select(o => o.FileName).ToList();
             var projectName = HttpContext.Items["ProjectName"].ToString();
-            result.Changes.AddRange(GetNewFiles(projectName, filenames));//新增的文件
             var diff = CompareFiles(projectName, fileHasCodes);
             result.Deletedes = diff.Deletedes;
             result.Changes.AddRange(diff.Changes);//有改动的文件
+            result.Changes.AddRange(GetNewFiles(projectName, filenames));//新增的文件
             var ignoreFiles = GetignoreFile(projectName);
             result.Changes= result.Changes.Except(ignoreFiles).ToList();
             return result;
@@ -74,6 +73,7 @@ namespace AutoUpgrade.Controllers
         {
             var result = new FileDiff();
             string baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot", projectName);
+            var ignoreFiles = GetignoreFile(projectName);
             foreach (var item in fileHasCodes)
             {
                 string filename = Path.Combine(baseDir, item.FileName);
@@ -90,6 +90,10 @@ namespace AutoUpgrade.Controllers
                 }
                 else
                 {
+                    if (ignoreFiles.Contains(item.FileName))
+                    {
+                        continue;
+                    }
                     result.Deletedes.Add(item.FileName);
                 }
             }
@@ -117,7 +121,8 @@ namespace AutoUpgrade.Controllers
             {
                 files[i] = files[i].Replace(baseDir, "").TrimStart('/');
             }
-            return files.Except(filenames.Select(s=>s.Replace("\\","/"))).Where(o=>!o.StartsWith("Upgrade")).ToList();
+            var postFiles = filenames.Select(s => s.Replace("\\", "/")).ToList();
+            return files.Except(filenames.Select(s=>s.Replace("\\","/")).ToList()).Where(o=>!o.StartsWith("Upgrade")).ToList();
         }
         private List<string> GetFileSystemEntries(string dir)
         {
