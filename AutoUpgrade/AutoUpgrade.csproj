@@ -14,8 +14,4 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="wwwroot\LandWin\AutoSave\" />
-    <Folder Include="wwwroot\LandWin\publish\win-x64\AutoSave\" />
-  </ItemGroup>
 </Project>
