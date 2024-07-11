@@ -76,7 +76,7 @@ namespace AutoUpgrade.Controllers
             var ignoreFiles = GetignoreFile(projectName);
             foreach (var item in fileHasCodes)
             {
-                string filename = Path.Combine(baseDir, item.FileName);
+                string filename = Path.Combine(baseDir, item.FileName.Replace("\\","/"));
                 if (System.IO.File.Exists(filename))
                 {
                     var bytes = System.IO.File.ReadAllBytes(filename);
@@ -119,10 +119,11 @@ namespace AutoUpgrade.Controllers
             List<string>  files = GetFileSystemEntries(baseDir);
             for (int i = 0; i < files.Count; i++)
             {
-                files[i] = files[i].Replace(baseDir, "").TrimStart('/');
+                files[i] = files[i].Replace(baseDir,"").TrimStart('\\').TrimStart('/').Replace("\\","/");
             }
             var postFiles = filenames.Select(s => s.Replace("\\", "/")).ToList();
-            return files.Except(filenames.Select(s=>s.Replace("\\","/")).ToList()).Where(o=>!o.StartsWith("Upgrade")).ToList();
+            var res = files.Except(postFiles).Where(o=>!o.StartsWith("Upgrade")).ToList();
+            return res;
         }
         private List<string> GetFileSystemEntries(string dir)
         {
