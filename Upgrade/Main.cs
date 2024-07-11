@@ -84,7 +84,7 @@ namespace Upgrade
                         try
                         {
                             notifyForm($"【{current}/{willDownLoadFiles.Count}】   正在下载文件{item}", current, willDownLoadFiles.Count);
-                            var itempath = item.TrimStart('\\');
+                            var itempath = item.TrimStart('\\').TrimStart('/');
                             Program.client.GetAsync(string.Concat("/Upgrade/GetFile?FileName=" + itempath))
                             .ContinueWith(result => {
                                 result.Result.Content.ReadAsStreamAsync().ContinueWith(o => {
@@ -164,7 +164,6 @@ namespace Upgrade
             StringBuilder stringBuilder = new StringBuilder();
             for (int i = 0; i < buffer.Length; i++)
             {
-
                 stringBuilder.Append(buffer[i].ToString("x2"));
             }
             return stringBuilder.ToString();

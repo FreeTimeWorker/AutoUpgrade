@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30907.101
@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoUpgrade.JWT", "AutoUpgr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Upgrade", "Upgrade\Upgrade.csproj", "{5837A64A-908E-4056-84E5-B31D88A26519}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Winform_App", "Winform_App\Winform_App.csproj", "{93AD55E0-5C66-433F-BFB4-01774D4301BD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Winform_App", "Winform_App\Winform_App.csproj", "{93AD55E0-5C66-433F-BFB4-01774D4301BD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

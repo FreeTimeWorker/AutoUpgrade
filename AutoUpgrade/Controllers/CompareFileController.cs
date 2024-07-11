@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,6 +13,14 @@ namespace AutoUpgrade.Controllers
     [ApiController]
     public class CompareFileController : ControllerBase
     {
+        private readonly ILogger<CompareFileController> _logger;
+
+        public CompareFileController(ILogger<CompareFileController> logger)
+        {
+            _logger = logger;
+        }
+
+
         /// <summary>
         /// 比对文件确定需要下载的文件
         /// </summary>
@@ -76,6 +85,8 @@ namespace AutoUpgrade.Controllers
                     {
                         result.Changes.Add(item.FileName);
                     }
+
+                    _logger.LogInformation($"比较文件hash值,文件路径{filename},计算结果{hashcode},window计算结果{item.HashCode},一致:{item.HashCode == hashcode}");
                 }
                 else
                 {
@@ -104,9 +115,9 @@ namespace AutoUpgrade.Controllers
             List<string>  files = GetFileSystemEntries(baseDir);
             for (int i = 0; i < files.Count; i++)
             {
-                files[i] = files[i].Replace(baseDir, "").TrimStart('\\');
+                files[i] = files[i].Replace(baseDir, "").TrimStart('/');
             }
-            return files.Except(filenames).Where(o=>!o.StartsWith("Upgrade")).ToList();
+            return files.Except(filenames.Select(s=>s.Replace("\\","/"))).Where(o=>!o.StartsWith("Upgrade")).ToList();
         }
         private List<string> GetFileSystemEntries(string dir)
         {

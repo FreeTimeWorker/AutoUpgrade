@@ -16,7 +16,7 @@ namespace AutoUpgrade.Controllers
         public VirtualFileResult GetFile(string FileName)
         {
             var projectname = HttpContext.Items["ProjectName"].ToString();
-            FileName = Path.Combine(projectname, FileName);
+            FileName = Path.Combine(projectname, FileName).Replace("\\","/");
             return File(FileName, "application/octet-stream",Path.GetFileName(FileName));
         }
         /// <summary>
